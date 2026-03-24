@@ -98,7 +98,7 @@ flowchart LR
 ## 5. Python usage
 
 ```python
-from python_rp.redpitaya_dev import redpitaya_dev
+from redpitaya_control.redpitaya_dev import redpitaya_dev
 
 # Connect with any streaming-enabled config
 dev = redpitaya_dev("rp", "config/some_stream_config.json")
@@ -132,13 +132,13 @@ t = np.arange(frame_len) / config['actual_frequency']
 ### Real-time streaming examples:
 ```python
 # Overlaid time traces
-# python_rp/examples/stream4channel_overlaid.py
+# redpitaya_control/examples/stream4channel_overlaid.py
 
 # Power spectral density analysis  
-# python_rp/examples/stream4channel_psd.py
+# redpitaya_control/examples/stream4channel_psd.py
 
 # Dual-device streaming
-# python_rp/examples/stream_2devices_overlaid.py
+# redpitaya_control/examples/stream_2devices_overlaid.py
 ```
 
 ---

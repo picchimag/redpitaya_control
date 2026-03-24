@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="python_rp",
+    name="redpitaya_control",
     version="0.1.0",
     description="Red Pitaya control and data acquisition",
     packages=find_packages(),

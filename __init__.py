@@ -1,4 +1,4 @@
 """Red Pitaya control modules"""
 
-from .python_rp import redpitaya_dev
-from .python_rp import compute_coeff
+from .redpitaya_control import redpitaya_dev
+from .redpitaya_control import compute_coeff

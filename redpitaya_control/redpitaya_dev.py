@@ -7,9 +7,9 @@ import numpy as np
 class redpitaya_dev():
     def __init__(self, host, config_file, user='root', pwd='root'):
 
-        # Resolve paths relative to python_rp package root (one level up from this module)
+        # Resolve paths relative to redpitaya_control package root (one level up from this module)
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        package_root = os.path.dirname(module_dir)  # Go up to python_rp/
+        package_root = os.path.dirname(module_dir)  # Go up to redpitaya_control/
         
         config_file = os.path.join(package_root, config_file)
         

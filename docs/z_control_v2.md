@@ -85,8 +85,8 @@ flowchart LR
 ## 4. Python usage
 
 ```python
-from python_rp.redpitaya_dev import redpitaya_dev
-from python_rp.compute_coeff import pid_controller, lowpass, coupled_oscillator
+from redpitaya_control.redpitaya_dev import redpitaya_dev
+from redpitaya_control.compute_coeff import pid_controller, lowpass, coupled_oscillator
 
 dev = redpitaya_dev("rp", "config/z_control.json")
 

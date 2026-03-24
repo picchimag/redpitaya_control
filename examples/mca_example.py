@@ -1,5 +1,5 @@
-from python_rp.redpitaya_dev import redpitaya_dev
-from python_rp import compute_coeff
+from redpitaya_control.redpitaya_dev import redpitaya_dev
+from redpitaya_control import compute_coeff
 import time
 import numpy as np
 

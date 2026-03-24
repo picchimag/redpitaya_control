@@ -1,5 +1,5 @@
-from python_rp.redpitaya_dev import redpitaya_dev
-from python_rp.compute_coeff import *
+from redpitaya_control.redpitaya_dev import redpitaya_dev
+from redpitaya_control.compute_coeff import *
 import time
 
 # Connect to Red Pitaya

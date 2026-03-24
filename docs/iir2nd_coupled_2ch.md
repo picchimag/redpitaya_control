@@ -132,8 +132,8 @@ Identical fields, different base.
 ## 4. Typical Python usage
 
 ```python
-from python_rp.redpitaya_dev import redpitaya_dev
-from python_rp.compute_coeff import coupled_oscillator
+from redpitaya_control.redpitaya_dev import redpitaya_dev
+from redpitaya_control.compute_coeff import coupled_oscillator
 
 dev = redpitaya_dev("rp", "config/iir2nd_coupled_2ch.json")
 

@@ -1,4 +1,4 @@
-# python_rp
+# redpitaya_control
 
 Python control and data acquisition library for Red Pitaya FPGA projects.
 check this, [[iir2nd_direct_2ch]], [[z_control]], [[mca_simple]]
@@ -6,15 +6,15 @@ check this, [[iir2nd_direct_2ch]], [[z_control]], [[mca_simple]]
 ## Installation
 
 ```bash
-cd python_rp
+cd redpitaya_control
 pip install -e .
 ```
 
 ## Usage
 
 ```python
-from python_rp.redpitaya_dev import redpitaya_dev
-from python_rp import compute_coeff
+from redpitaya_control.redpitaya_dev import redpitaya_dev
+from redpitaya_control import compute_coeff
 
 # Connect to Red Pitaya
 dev = redpitaya_dev("171.64.56.120", "config/stream_cdma_4ch.json")
@@ -36,7 +36,7 @@ See `examples/` directory:
 
 ## Structure
 
-- `python_rp/` - Main package
+- `redpitaya_control/` - Main package
   - `redpitaya_dev.py` - High-level device interface
   - `redpitaya_base.py` - Low-level SSH/register access
   - `compute_coeff.py` - Filter coefficient calculation

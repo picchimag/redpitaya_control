@@ -1,5 +1,5 @@
 
-from python_rp.redpitaya_dev import redpitaya_dev
+from redpitaya_control.redpitaya_dev import redpitaya_dev
 import time
 import numpy as np
 import pyqtgraph as pg
