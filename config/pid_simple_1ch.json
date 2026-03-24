@@ -1,0 +1,33 @@
+
+{
+  "bitfile": "bitfiles/pid_simple_1ch.bit",
+  "description": "Plain PID controller (Kp, Ki, Kd) matching iir2nd_direct style. Runs at reduced rate via upstream integrator slow_clk.",
+  "build_date": "2025-09-29",
+  
+  "modules": {
+
+    "pid0": {
+      "type": "pid_simple",
+      "settings": {
+        "LOG_DIV": 10,
+        "LOG_A0": 16,
+        "DATA_WIDTH": 32,
+        "COEFF_WIDTH": 32,
+        "GAIN_WIDTH": 18,
+        "LOG_UNITY_GAIN": 9,
+        "timebase_rp": 8e-9,
+        "timebase_module": 8.192e-6
+        },
+      "registers": {
+        "setpoint": {"base": "0x40000000", "offset": 0,  "msb": 31, "lsb": 0, "signed": true, "log_scale": 31},
+        "Kp":       {"base": "0x40000000", "offset": 4,  "msb": 31, "lsb": 0, "signed": true, "log_scale": 16},
+        "Ki":       {"base": "0x40000000", "offset": 8,  "msb": 31, "lsb": 0, "signed": true, "log_scale": 16},
+        "Kd":       {"base": "0x40000000", "offset": 12, "msb": 31, "lsb": 0, "signed": true, "log_scale": 16},
+        "alpha_d":  {"base": "0x40000000", "offset": 16, "msb": 31, "lsb": 0, "signed": true, "log_scale": 31},
+        "gain":     {"base": "0x40000000", "offset": 20, "msb": 17, "lsb": 0, "signed": false, "log_scale": 9},
+        "ireset":   {"base": "0x40000000", "offset": 24, "msb": 1,  "lsb": 1, "signed": false, "log_scale": 0},
+        "reset":    {"base": "0x40000000", "offset": 24, "msb": 0,  "lsb": 0, "signed": false, "log_scale": 0}
+      }
+    }
+  }
+}

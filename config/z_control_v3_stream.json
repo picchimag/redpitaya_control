@@ -1,0 +1,129 @@
+{
+    "bitfile": "bitfiles/z_control_v2_stream.bit",
+    "description": "Second-order IIR filter with coupled form implementation. On channel 2 a pid. channel 2 is sum of pid and iir. Includes upstream integrator that reduces sampling rate by 2^LOG_DIV factor.",
+    "build_date": "2025-01-14",
+
+    "modules": {
+
+        "filt0": {
+            "type": "iir2nd_coupled",
+            "settings": { "LOG_DIV": 10,
+                            "LOG_A0": 19,
+                            "LOG_UNITY_GAIN": 10,
+                            "DATA_WIDTH": 20,
+                            "COEFF_WIDTH": 20,
+                            "GAIN_WIDTH": 18,
+                            "timebase_rp": 8e-9,
+                            "timebase_module": 8.192e-6
+                        },
+            "registers": {
+                        "alpha": {"base": "0x40001000", "offset":  0, "msb": 31, "lsb": 0, "signed": true,  "log_scale": 19},
+                        "beta" : {"base": "0x40001000", "offset":  4, "msb": 31, "lsb": 0, "signed": true,  "log_scale": 19},
+                        "gainI": {"base": "0x40001000", "offset":  8, "msb": 31, "lsb": 0, "signed": false, "log_scale": 10},
+                        "gainQ": {"base": "0x40001000", "offset": 12, "msb": 31, "lsb": 0, "signed": false, "log_scale": 10},
+                        "reset": {"base": "0x40001000", "offset": 16, "msb": 0,  "lsb": 0, "signed": false, "log_scale": 0}
+                        }
+        },
+
+
+        "filt1": {
+        "type": "iir2nd_coupled",
+        "settings": { "LOG_DIV": 4,
+                        "LOG_A0": 19,
+                        "LOG_UNITY_GAIN": 10,
+                        "DATA_WIDTH": 20,
+                        "COEFF_WIDTH": 20,
+                        "GAIN_WIDTH": 18,
+                        "timebase_rp": 1e-5,
+                        "timebase_module": 1.6e-4
+                    },
+        "registers": {
+                    "alpha": {"base": "0x40003000", "offset":  0, "msb": 31, "lsb": 0, "signed": true,  "log_scale": 19},
+                    "beta" : {"base": "0x40003000", "offset":  4, "msb": 31, "lsb": 0, "signed": true,  "log_scale": 19},
+                    "gainI": {"base": "0x40003000", "offset":  8, "msb": 31, "lsb": 0, "signed": false, "log_scale": 10},
+                    "gainQ": {"base": "0x40003000", "offset": 12, "msb": 31, "lsb": 0, "signed": false, "log_scale": 10},
+                    "reset": {"base": "0x40003000", "offset": 16, "msb": 0,  "lsb": 0, "signed": false, "log_scale": 0}
+                    }
+    },
+
+          "pid0": {
+            "type": "pid_simple",
+            "settings": {
+                "LOG_DIV": 10,
+                "LOG_A0": 16,
+                "DATA_WIDTH": 32,
+                "COEFF_WIDTH": 32,
+                "GAIN_WIDTH": 18,
+                "LOG_UNITY_GAIN": 9,
+                "timebase_rp": 8e-9,
+                "timebase_module": 8.192e-6
+                },
+            "registers": {
+                "setpoint": {"base": "0x40002000", "offset": 0,  "msb": 31, "lsb": 0, "signed": true, "log_scale": 31},
+                "Kp":       {"base": "0x40002000", "offset": 4,  "msb": 31, "lsb": 0, "signed": true, "log_scale": 16},
+                "Ki":       {"base": "0x40002000", "offset": 8,  "msb": 31, "lsb": 0, "signed": true, "log_scale": 20},
+                "Kd":       {"base": "0x40002000", "offset": 12, "msb": 31, "lsb": 0, "signed": true, "log_scale": 16},
+                "alpha_d":  {"base": "0x40002000", "offset": 16, "msb": 31, "lsb": 0, "signed": true, "log_scale": 31},
+                "ireset":   {"base": "0x40002000", "offset": 24, "msb": 1,  "lsb": 1, "signed": false, "log_scale": 0},
+                "reset":    {"base": "0x40002000", "offset": 24, "msb": 0,  "lsb": 0, "signed": false, "log_scale": 0}
+
+            }
+        },
+
+          "pid1": {
+            "type": "pid_simple",
+            "settings": {
+                "LOG_DIV": 10,
+                "LOG_A0": 16,
+                "DATA_WIDTH": 32,
+                "COEFF_WIDTH": 32,
+                "GAIN_WIDTH": 18,
+                "LOG_UNITY_GAIN": 9,
+                "timebase_rp": 8e-9,
+                "timebase_module": 8.192e-6
+                },
+            "registers": {
+                "setpoint": {"base": "0x40004000", "offset": 0,  "msb": 31, "lsb": 0, "signed": true, "log_scale": 31},
+                "Kp":       {"base": "0x40004000", "offset": 4,  "msb": 31, "lsb": 0, "signed": true, "log_scale": 16},
+                "Ki":       {"base": "0x40004000", "offset": 8,  "msb": 31, "lsb": 0, "signed": true, "log_scale": 20},
+                "Kd":       {"base": "0x40004000", "offset": 12, "msb": 31, "lsb": 0, "signed": true, "log_scale": 16},
+                "alpha_d":  {"base": "0x40004000", "offset": 16, "msb": 31, "lsb": 0, "signed": true, "log_scale": 31},
+                "ireset":   {"base": "0x40004000", "offset": 24, "msb": 1,  "lsb": 1, "signed": false, "log_scale": 0},
+                "reset":    {"base": "0x40004000", "offset": 24, "msb": 0,  "lsb": 0, "signed": false, "log_scale": 0}
+
+            }
+        },
+
+        "stream8ch": {
+            "type": "stream4channel_axi_wrap",
+            "settings": {
+                "sample_width_bits": 16,
+                "num_channels": 8,
+                "bram_addr_bits": 11,
+                "decimation_bits": 8,
+                "timebase_rp_sec": 8e-9,
+                "timebase_module_sec": 8e-9,
+                
+                "comment_data_format": "Each BRAM word packs 8 channels into 128 bits",
+                "bram_word_width_bits": 64,
+                "bram_word_width_bytes": 16,
+                "bram_depth_words": 2048,
+                "bram_size_bytes": 32768,
+                
+                "comment_addresses": "Memory-mapped addresses",
+                "bram_base_addr": "0x41000000",
+                "cdma_ctrl_addr": "0x7E200000",
+                "ddr_target_addr": "0x10000000"
+            },
+            "registers": {
+                "frame_len": {"base": "0x40000000", "offset": 0,  "msb": 11, "lsb": 0, "signed": false, "log_scale": 0, "description": "Number of samples to capture (1-2048). Note: samples, not bytes!"},
+                "log_div":   {"base": "0x40000000", "offset": 4,  "msb": 7,  "lsb": 0, "signed": false, "log_scale": 0, "description": "Decimation factor = 2^log_div (0=125MHz, 1=62.5MHz, etc)"},
+                "arm":       {"base": "0x40000000", "offset": 8,  "msb": 0,  "lsb": 0, "signed": false, "log_scale": 0, "description": "Arm capture (write 1 to start)"},
+                "ack":       {"base": "0x40000000", "offset": 12, "msb": 0,  "lsb": 0, "signed": false, "log_scale": 0, "description": "Acknowledge frame (write 1 then 0)"},
+                "status":    {"base": "0x40000000", "offset": 28, "msb": 31, "lsb": 0, "signed": false, "log_scale": 0, "readonly": true, "description": "[31]=sample_tick, [22:11]=wr_idx, [10:3]=seq, [0]=ready"}
+            }
+        }
+
+    }
+
+}

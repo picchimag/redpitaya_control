@@ -1,0 +1,50 @@
+{
+    "bitfile": "bitfiles/iir2nd_coupled_2ch.bit",
+    "description": "Second-order IIR filter with coupled form implementation. Includes upstream integrator that reduces sampling rate by 2^LOG_DIV factor.",
+    "build_date": "2025-01-14",
+
+    "modules": {
+
+        "filt0": {
+            "type": "iir2nd_coupled",
+            "settings": { "LOG_DIV": 10,
+                            "LOG_A0": 19,
+                            "LOG_UNITY_GAIN": 10,
+                            "DATA_WIDTH": 20,
+                            "COEFF_WIDTH": 20,
+                            "GAIN_WIDTH": 18,
+                            "timebase_rp": 8e-9,
+                            "timebase_module": 8.192e-6
+                        },
+            "registers": {
+                        "alpha": {"base": "0x40000000", "offset":  0, "msb": 31, "lsb": 0, "signed": true,  "log_scale": 19},
+                        "beta" : {"base": "0x40000000", "offset":  4, "msb": 31, "lsb": 0, "signed": true,  "log_scale": 19},
+                        "gainI": {"base": "0x40000000", "offset":  8, "msb": 31, "lsb": 0, "signed": false, "log_scale": 10},
+                        "gainQ": {"base": "0x40000000", "offset": 12, "msb": 31, "lsb": 0, "signed": false, "log_scale": 10},
+                        "reset": {"base": "0x40000000", "offset": 16, "msb": 0,  "lsb": 0, "signed": false, "log_scale": 0}
+                        }
+        },
+
+         "filt1": {
+            "type": "iir2nd_coupled",
+            "settings": { "LOG_DIV": 10,
+                            "LOG_A0": 19,
+                            "LOG_UNITY_GAIN": 10,
+                            "DATA_WIDTH": 20,
+                            "COEFF_WIDTH": 20,
+                            "GAIN_WIDTH": 18,
+                            "redpitaya_timebase": 8e-9,
+                            "module_timebase": 8.192e-6
+                        },
+            "registers": {
+                        "alpha": {"base": "0x40001000", "offset":  0, "msb": 31, "lsb": 0, "signed": true,  "log_scale": 19},
+                        "beta" : {"base": "0x40001000", "offset":  4, "msb": 31, "lsb": 0, "signed": true,  "log_scale": 19},
+                        "gainI": {"base": "0x40001000", "offset":  8, "msb": 31, "lsb": 0, "signed": false, "log_scale": 10},
+                        "gainQ": {"base": "0x40001000", "offset": 12, "msb": 31, "lsb": 0, "signed": false, "log_scale": 10},
+                        "reset": {"base": "0x40001000", "offset": 16, "msb": 0,  "lsb": 0, "signed": false, "log_scale": 0}
+                        }
+        }
+
+    }
+
+}

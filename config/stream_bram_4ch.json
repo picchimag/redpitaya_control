@@ -1,0 +1,31 @@
+{
+    "bitfile": "bitfiles/stream_bram_4ch.bit",
+    "description": "4-channel decimated data streaming via AXI wrapper and BRAM",
+    "build_date": "2025-11-05",
+
+    "modules": {
+        "stream4ch": {
+            "type": "stream4channel_bram",
+            "settings": {
+                "SAMPLE_WIDTH": 16,
+                "N_CH": 4,
+                "ADDR_BITS": 11,
+                "DIV_BITS": 8,
+                "timebase_rp": 8e-9,
+                "timebase_module": 8e-9
+            },
+            "registers": {
+                "frame_len": {"base": "0x40000000", "offset": 0, "msb": 11, "lsb": 0, "signed": false, "log_scale": 0, "description": "Number of samples to capture (1-2048)"},
+                "log_div":   {"base": "0x40000000", "offset": 4, "msb": 7, "lsb": 0, "signed": false, "log_scale": 0, "description": "Decimation factor = 2^log_div"},
+                "arm":       {"base": "0x40000000", "offset": 8, "msb": 0, "lsb": 0, "signed": false, "log_scale": 0, "description": "Arm capture (write 1 to start)"},
+                "ack":       {"base": "0x40000000", "offset": 12, "msb": 0, "lsb": 0, "signed": false, "log_scale": 0, "description": "Acknowledge frame (write 1 then 0)"},
+                "status":    {"base": "0x40000000", "offset": 28, "msb": 31, "lsb": 0, "signed": false, "log_scale": 0, "readonly": true, "description": "[31]=sample_tick, [21:11]=wr_idx, [10:3]=seq, [0]=ready"}
+            },
+            "bram": {
+                "base": "0x41000000",
+                "size": 16384,
+                "description": "BRAM for 4-channel data (64-bit packed samples: {in3,in2,in1,in0})"
+            }
+        }
+    }
+}
