@@ -1,4 +1,4 @@
-from neutrality_control.redpitaya.python_rp import redpitaya_dev
+from redpitaya_control.redpitaya_dev import redpitaya_dev
 import time
 import numpy as np
 import pyqtgraph as pg
@@ -7,9 +7,9 @@ from scipy import signal
 import sys
 
 # Connect to Red Pitaya
-dev = redpitaya_dev("171.64.56.117", "config/z_control_v4_stream.json")
+dev = redpitaya_dev("171.64.56.58", "config/z_control_v4_stream.json")
 #dev.base.bitfile = 'C:\\Users\\magrini\\Documents\\programming\\redpitaya\\projects\\z_control_v4_stream\\z_control_v4_stream.runs\\impl_1\\system_wrapper.bit'
-dev.base.load_bitfile()
+#dev.base.load_bitfile()
 
 # Setup parameters
 frame_len = 1024

@@ -138,11 +138,25 @@ dd if=/dev/mem of={local_file} bs=$N count=1 iflag=skip_bytes skip=$DA 2>/dev/nu
         acquisition_time = frame_len * (2**log_div) / 125e6
         byte_count = frame_len * 8  # 4 channels × 16-bit each = 64-bit per sample
         
-        # Configure stream module
+        # Disarm first so config registers are writable (they lock while arm=1)
+        self.write_word(stream_base + 0x08, 0)          # arm register (clear BEFORE config)
+        self.write_word(stream_base + 0x0C, 1)          # pulse ack to flush any pending state
+        self.write_word(stream_base + 0x0C, 0)
+        # Now safe to write config registers
         self.write_word(stream_base + 0x00, frame_len)  # frame_len register
         self.write_word(stream_base + 0x04, log_div)    # log_div register
-        self.write_word(stream_base + 0x0C, 0)          # ack register
-        
+
+        # Verify register writes landed (catches wrong bitfile / address mismatch)
+        rb_frame_len = self.read_word(stream_base + 0x00) & 0xFFF
+        rb_log_div   = self.read_word(stream_base + 0x04) & 0xFF
+        if rb_frame_len != frame_len or rb_log_div != log_div:
+            raise RuntimeError(
+                f"setup_cdma: register readback mismatch "
+                f"(frame_len wrote {frame_len} got {rb_frame_len}, "
+                f"log_div wrote {log_div} got {rb_log_div}). "
+                f"Is the correct bitfile loaded?"
+            )
+
         # Configure CDMA (soft reset, clear, set addresses)
         self._sh(f'''
 /opt/redpitaya/bin/monitor {cdma_addr:#x} 4         # Soft reset
@@ -191,15 +205,22 @@ dd if=/dev/mem of={local_file} bs=$N count=1 iflag=skip_bytes skip=$DA 2>/dev/nu
         # Shell does smart waiting based on acquisition time
         need_wait = 1 if acquisition_time > 0.001 else 0
         
+        # Timeout in loop iterations: status poll ~1ms each, CDMA poll ~0.1ms each
+        acq_timeout_iters = max(5000, int(acquisition_time / 0.001) * 10)
+        cdma_timeout_iters = max(50000, int(byte_count / 100))
+
         result = self._sh(f'''
 # Arm capture
 /opt/redpitaya/bin/monitor {stream_base + 0x08:#x} 1
 
 # Wait for ready only if needed (slow acquisition)
 if [ {need_wait} -eq 1 ]; then
+    N=0
     while true; do
         ST=$(/opt/redpitaya/bin/monitor {stream_base + 0x1C:#x})
         [ $((ST & 0x1)) -ne 0 ] && break
+        N=$((N+1))
+        [ $N -ge {acq_timeout_iters} ] && echo "ERROR: status poll timeout" >&2 && exit 1
         sleep 0.001
     done
 fi
@@ -208,9 +229,13 @@ fi
 /opt/redpitaya/bin/monitor {cdma_addr + 0x28:#x} {byte_count}
 
 # Wait for CDMA to complete (poll status register bit 1 = idle)
+N=0
 while true; do
     CDMA_ST=$(/opt/redpitaya/bin/monitor {cdma_addr + 0x04:#x})
     [ $((CDMA_ST & 0x2)) -ne 0 ] && break
+    [ $((CDMA_ST & 0x10)) -ne 0 ] && echo "ERROR: CDMA error bit set (status=$CDMA_ST)" >&2 && exit 1
+    N=$((N+1))
+    [ $N -ge {cdma_timeout_iters} ] && echo "ERROR: CDMA completion timeout" >&2 && exit 1
     sleep 0.0001
 done
 
@@ -258,7 +283,12 @@ dd if=/dev/mem bs={byte_count} count=1 iflag=skip_bytes skip={ddr_addr} 2>/dev/n
     def _sh(self, cmd):
         stdin, stdout, stderr = self.ssh.exec_command(cmd)
         out = stdout.read().decode()
+        err = stderr.read().decode()
         stdout.channel.close()
+        # Only raise on explicit ERROR markers written by our shell scripts
+        for line in err.splitlines():
+            if line.strip().startswith("ERROR:"):
+                raise RuntimeError(f"Remote: {line.strip()}")
         return out
 
     @staticmethod

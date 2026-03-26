@@ -8,13 +8,13 @@ from scipy import signal
 
 # Connect to Red Pitaya
 title  = "X, Y QPD and feedback - Press Q to quit"
-dev = redpitaya_dev("171.64.56.120", "config/iir2nd_coupled_2ch_stream.json")
-dev = redpitaya_dev("171.64.56.120", "config/z_control_stream.json")
+dev = redpitaya_dev("171.64.56.59", "config/iir2nd_coupled_2ch_stream.json")
+#dev = redpitaya_dev("171.64.56.58", "config/z_control_stream.json")
 
 frame_len = 2048
 sampling_frequency = 50e3  # 125 kHz
 
-dev.base.load_bitfile()
+#dev.base.load_bitfile()
 
 # Setup parameters
 # Configure CDMA using config file addresses
