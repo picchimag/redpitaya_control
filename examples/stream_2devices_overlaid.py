@@ -1,4 +1,5 @@
-from redpitaya_dev import redpitaya_dev
+from redpitaya_control.redpitaya_dev import redpitaya_dev
+import os
 import time
 import numpy as np
 import pyqtgraph as pg
@@ -7,13 +8,14 @@ import sys
 from scipy import signal
 
 # Connect to both Red Pitayas
+RP_HOST1 = os.environ.get("RP_HOST1", "171.64.56.120")
+RP_HOST2 = os.environ.get("RP_HOST2", "171.64.56.120")
 
-
-dev1 = redpitaya_dev("171.64.56.120", "config/stream_cdma_4ch.json")
+dev1 = redpitaya_dev(RP_HOST1, "config/stream_cdma_4ch.json")
 dev1.base.bitfile = 'C:\\Users\\magrini\\Documents\\programming\\redpitaya\\projects\\stream_cdma_4ch\\stream_cdma_4ch.runs\\impl_1\\system_wrapper.bit'
 #dev1.base.load_bitfile()
 
-dev2 = redpitaya_dev("171.64.56.120", "config/stream_cdma_4ch.json")  # Change IP for second device
+dev2 = redpitaya_dev(RP_HOST2, "config/stream_cdma_4ch.json")
 dev2.base.bitfile = 'C:\\Users\\magrini\\Documents\\programming\\redpitaya\\projects\\stream_cdma_4ch\\stream_cdma_4ch.runs\\impl_1\\system_wrapper.bit'
 #dev2.base.load_bitfile()
 

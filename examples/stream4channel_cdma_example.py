@@ -1,4 +1,5 @@
-from redpitaya_dev import redpitaya_dev
+from redpitaya_control.redpitaya_dev import redpitaya_dev
+import os
 import time
 import numpy as np
 import pyqtgraph as pg
@@ -6,7 +7,8 @@ from PyQt5 import QtWidgets, QtCore
 import sys
 
 # Connect to Red Pitaya
-dev = redpitaya_dev("171.64.56.120", "config/stream_cdma_4ch.json")
+RP_HOST = os.environ.get("RP_HOST", "171.64.56.120")
+dev = redpitaya_dev(RP_HOST, "config/stream_cdma_4ch.json")
 dev.base.bitfile = 'C:\\Users\\magrini\\Documents\\programming\\redpitaya\\projects\\stream_cdma_4ch\\stream_cdma_4ch.runs\\impl_1\\system_wrapper.bit'
 dev.base.load_bitfile()
 

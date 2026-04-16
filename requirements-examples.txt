@@ -1,0 +1,4 @@
+matplotlib
+pyqtgraph
+PyQt5
+pandas

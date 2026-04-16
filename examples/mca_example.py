@@ -1,10 +1,12 @@
 from redpitaya_control.redpitaya_dev import redpitaya_dev
 from redpitaya_control import compute_coeff
+import os
 import time
 import numpy as np
 
 # Connect to Red Pitaya
-dev = redpitaya_dev("171.64.56.120", "config/mca_simple.json")
+RP_HOST = os.environ.get("RP_HOST", "171.64.56.120")
+dev = redpitaya_dev(RP_HOST, "config/mca_simple.json")
 dev.base.load_bitfile()
 
 # Configure signal chain

@@ -1,11 +1,13 @@
 from redpitaya_control.redpitaya_dev import redpitaya_dev
 from redpitaya_control.compute_coeff import *
+import os
 import time
 
 # Connect to Red Pitaya
+RP_HOST = os.environ.get("RP_HOST", "171.64.56.120")
 
-#dev = redpitaya_dev("171.64.56.120", "config/iir2nd_coupled_axi_2ch.json")
-dev = redpitaya_dev("171.64.56.120", "config/iir2nd_coupled_2ch_stream.json")
+#dev = redpitaya_dev(RP_HOST, "config/iir2nd_coupled_axi_2ch.json")
+dev = redpitaya_dev(RP_HOST, "config/iir2nd_coupled_2ch_stream.json")
 dev.base.bitfile = r'C:\Users\magrini\Documents\programming\redpitaya\projects\iir2nd_coupled_2ch_stream\iir2nd_coupled_2ch_stream.runs\impl_1\system_wrapper.bit'
 
 #dev.base.load_bitfile()

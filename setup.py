@@ -11,4 +11,7 @@ setup(
         "scipy>=1.7.0",
         "paramiko>=2.7.0",
     ],
+    extras_require={
+        "examples": ["matplotlib", "pyqtgraph", "PyQt5", "pandas"],
+    },
 )

@@ -1,4 +1,5 @@
 from redpitaya_control.redpitaya_dev import redpitaya_dev
+import os
 import time
 import numpy as np
 import pyqtgraph as pg
@@ -7,9 +8,10 @@ import sys
 from scipy import signal
 
 # Connect to Red Pitaya
+RP_HOST = os.environ.get("RP_HOST", "171.64.56.59")
 title  = "X, Y QPD and feedback - Press Q to quit"
-dev = redpitaya_dev("171.64.56.59", "config/iir2nd_coupled_2ch_stream.json")
-#dev = redpitaya_dev("171.64.56.58", "config/z_control_stream.json")
+dev = redpitaya_dev(RP_HOST, "config/iir2nd_coupled_2ch_stream.json")
+#dev = redpitaya_dev(RP_HOST, "config/z_control_stream.json")
 
 frame_len = 2048
 sampling_frequency = 50e3  # 125 kHz
