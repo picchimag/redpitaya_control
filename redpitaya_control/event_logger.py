@@ -16,7 +16,11 @@ Record layout (64-bit little-endian):
     bit  [63]    veto       (event fell inside a chB-transition veto window)
 
 NOTE: the timestamp is 47 bits, not 48 -- bit 63 was given to the veto tag.
-Files written by an older 48-bit build are NOT readable by this parser.
+Files written by an older 48-bit build are NOT readable by this parser: energy
+comes out as 2*(energy & 0x3FFF) (always even, top bit lost) and chb lands in
+the veto column. If you see that, the bitstream predates the veto change --
+rebuild it with make_project.tcl (build.tcl alone reuses the stale IP synthesis).
+
 Vetoed events are logged, not discarded; filter them offline:
     ts, energy, chb, veto = unpack(load_run("run1/events_*.bin"))
     good = veto == 0
