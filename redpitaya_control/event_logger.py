@@ -114,10 +114,17 @@ class EventLogger:
         return (hi << 32) | lo
 
     def tie_point(self):
-        """Return (host_unix_ns, fpga_counter_us)."""
-        t0 = time.clock_gettime_ns(time.CLOCK_REALTIME)
+        """Return (host_unix_ns, fpga_counter_us).
+
+        time_ns() (not clock_gettime_ns, which is Unix-only) so this runs on
+        Windows too; both read the realtime clock in ns since the epoch. The
+        host clock's own granularity is coarse on Windows -- ~15.6 ms before
+        Python 3.13 -- but that is per-point jitter, not bias, and fit_clock()
+        averages it out over a run.
+        """
+        t0 = time.time_ns()
         ctr = self.snap_counter()
-        t1 = time.clock_gettime_ns(time.CLOCK_REALTIME)
+        t1 = time.time_ns()
         return (t0 + t1) // 2, ctr
 
     def _drain_once(self):
