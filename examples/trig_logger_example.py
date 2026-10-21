@@ -13,9 +13,32 @@ from redpitaya_control.trig_logger import (
 import os
 import numpy as np
 
-RP_HOST = os.environ.get("RP_HOST", "171.64.56.120")
-OUT_DIR = "run1"
-DURATION = 60                      # seconds; None = run until Ctrl+C
+# ------------------------------------------------------------------ settings
+# Everything you would normally touch is here. Nothing below needs editing.
+RP_HOST  = os.environ.get("RP_HOST", "171.64.56.120")
+OUT_DIR  = "run1"
+DURATION = 60          # seconds of acquisition; None = run until Ctrl+C
+
+N_AVG        = 256     # boxcar length in SAMPLES, power of two, <= 2048.
+                       # 256 samples = 2.05 us at 125 MHz. The divide is a
+                       # right shift, which is why it must be a power of two.
+N_DELAY_US   = 5.0     # trigger edge -> energy latch. The boxcar costs ~3
+                       # clock cycles of pipeline, so the stored average ends
+                       # ~24 ns before this deadline.
+DIR_THR      = 0.1     # symmetric IN2 threshold in volts: >= +0.1 V -> +1,
+                       # <= -0.1 V -> -1, in between -> 0
+DIR_THR_POS  = None    # set both of these to override DIR_THR with an
+DIR_THR_NEG  = None    # asymmetric pair, e.g. +0.15 / -0.05
+TRIG_SEL     = 0       # which DIO pin: 0-7 = exp_p[0..7], 8-15 = exp_n[0..7]
+TRIG_INVERT  = 0       # 1 = trigger on the falling edge
+TRIG_DEAD_US = 0.0     # extra holdoff after each record (debounce). Total
+                       # dead time is N_DELAY_US + TRIG_DEAD_US; triggers
+                       # inside it are rejected and counted in `skipped`.
+FLUSH_MS     = 100     # publish a partially filled buffer this often, so a
+                       # low trigger rate still produces data (0 = never)
+FRAME_LEN    = 4096    # records per buffer before the ping-pong swap, 1..4096.
+                       # Lower = lower latency, more drain round-trips.
+TIE_PERIOD_S = 1.0     # how often to write a clock tie-point
 
 # Connect
 dev = redpitaya_dev(RP_HOST, "config/trig_logger.json")
@@ -23,18 +46,17 @@ dev.base.load_bitfile()
 
 log = TrigLogger(dev)
 
-# Configure. n_avg must be a power of two (<= 2048); the boxcar divide is a
-# right shift, which is why. n_delay_us is measured from the trigger edge.
 log.configure(
-    n_avg=256,          # 256 samples = 2.05 us at 125 MHz
-    n_delay_us=5.0,     # latch the averaged energy 5 us after the trigger
-    dir_thr=0.1,        # IN2 >= +0.1 V -> +1, <= -0.1 V -> -1, between -> 0
-    trig_sel=0,         # 0-7 = exp_p[0..7], 8-15 = exp_n[0..7]
-    trig_invert=0,      # 1 = trigger on the falling edge
-    trig_dead_us=0.0,   # extra holdoff per record (debounce); dead time is
-                        # n_delay_us + trig_dead_us
-    flush_ms=100,       # publish a partial buffer this often, so a low
-                        # trigger rate still produces data
+    n_avg=N_AVG,
+    n_delay_us=N_DELAY_US,
+    dir_thr=DIR_THR,
+    dir_thr_pos=DIR_THR_POS,
+    dir_thr_neg=DIR_THR_NEG,
+    trig_sel=TRIG_SEL,
+    trig_invert=TRIG_INVERT,
+    trig_dead_us=TRIG_DEAD_US,
+    flush_ms=FLUSH_MS,
+    frame_len=FRAME_LEN,
 )
 
 # Bring-up check before arming: is the trigger pin the one you think it is, has
@@ -46,7 +68,8 @@ for k, v in log.status().items():
 # Acquire. Ctrl+C stops cleanly; files are fsync'd as they go, so an
 # interrupted run keeps everything already written.
 print(f"\nlogging to {OUT_DIR}/ ...")
-n = log.run(duration=DURATION, output_dir=OUT_DIR)
+n = log.run(duration=DURATION, output_dir=OUT_DIR,
+            tie_period_s=TIE_PERIOD_S)
 
 # ---------------------------------------------------------------- offline
 ts, energy, direction = unpack(load_run(f"{OUT_DIR}/events_*.bin"))
