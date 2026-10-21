@@ -15,6 +15,7 @@
 | `stream_bram_4ch.json` | *(no matching bitfile)* | **check** | `stream4channel_bram_example.py` |
 | `stream_cdma_4ch.json` | `stream_cdma_4ch.bit` | active | `stream4channel_cdma_example.py`, `stream_2devices_overlaid.py` |
 | `stream_cdma_8ch.json` | *(no matching bitfile)* | **check** | — |
+| `trig_logger.json` | `trig_logger.bit` | active | `trig_logger_example.py` |
 | `z_control.json` | `z_control.bit` | active | — |
 | `z_control_stream.json` | `z_control_stream.bit` | active | *(commented ref in `stream4channel_overlaid.py`)* |
 | `z_control_v2_stream.json` | `z_control_v2_stream.bit` | active | `stream4channel_psd.py` |
@@ -25,3 +26,4 @@
 
 - **check**: config exists but no dedicated bitfile was found in `bitfiles/` — verify the correct bitfile path or whether this design has been built.
 - `mca_example.py` references `config/mca_simple.json` (without `_1ch` suffix) — this may be a typo; the actual file is `mca_simple_1ch.json`.
+- `trig_logger.json` is the digitally triggered 3-input logger (IN1 boxcar energy, IN2 direction, DIO trigger). Built and simulated, but not yet run on real hardware — the DIO pin numbering behind `trig_sel` is still unconfirmed, and `dir_thr_pos`/`dir_thr_neg` default to 0 (a hard sign test, no dead zone). See `redpitaya_fpga/docs/trig_logger.md`.

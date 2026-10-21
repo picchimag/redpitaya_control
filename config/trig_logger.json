@@ -1,0 +1,64 @@
+{
+    "bitfile": "bitfiles/trig_logger.bit",
+    "description": "Digitally triggered 3-input logger: IN1 boxcar-averaged energy, IN2 piezo direction (-1/0/+1), DIO pulse trigger. 64-bit records = 46-bit clock-cycle timestamp + 2-bit direction + signed 16-bit energy.",
+    "build_date": "2026-10-20",
+
+    "acquisition": {
+        "logger_bram": "0x41000000",
+        "cdma_addr":   "0x7E200000",
+        "ddr_addr":    "0x10000000",
+        "frame_len":   4096,
+        "clk_hz":      125000000
+    },
+
+    "modules": {
+
+        "trig_logger": {
+            "type": "trig_logger",
+            "settings": {   "TS_WIDTH": 46,
+                            "E_WIDTH": 16,
+                            "DIR_WIDTH": 2,
+                            "REC_WIDTH": 64,
+                            "ADDR_BITS": 13,
+                            "DATA_WIDTH": 16,
+                            "MAX_LOG_AVG": 11,
+                            "TRIG_BUS_W": 16,
+                            "buffers": 2,
+                            "records_per_buffer": 4096,
+                            "timebase_rp": 8e-9
+                        },
+            "registers": {
+                        "arm":          {"base": "0x40004000", "offset":  0, "msb":  0, "lsb": 0, "signed": false, "log_scale": 0},
+                        "clear_ts":     {"base": "0x40004000", "offset":  0, "msb":  1, "lsb": 1, "signed": false, "log_scale": 0},
+                        "reset":        {"base": "0x40004000", "offset":  0, "msb":  2, "lsb": 2, "signed": false, "log_scale": 0},
+                        "snap":         {"base": "0x40004000", "offset":  0, "msb":  3, "lsb": 3, "signed": false, "log_scale": 0},
+                        "ack":          {"base": "0x40004000", "offset":  0, "msb":  4, "lsb": 4, "signed": false, "log_scale": 0},
+                        "frame_len":    {"base": "0x40004000", "offset":  4, "msb": 12, "lsb": 0, "signed": false, "log_scale": 0},
+                        "flush_ticks":  {"base": "0x40004000", "offset":  8, "msb": 31, "lsb": 0, "signed": false, "log_scale": 0},
+                        "log_n_avg":    {"base": "0x40004000", "offset": 12, "msb":  3, "lsb": 0, "signed": false, "log_scale": 0},
+                        "n_delay":      {"base": "0x40004000", "offset": 16, "msb": 31, "lsb": 0, "signed": false, "log_scale": 0},
+                        "trig_dead":    {"base": "0x40004000", "offset": 20, "msb": 31, "lsb": 0, "signed": false, "log_scale": 0},
+                        "dir_thr_pos":  {"base": "0x40004000", "offset": 24, "msb": 15, "lsb": 0, "signed": true,  "log_scale": 15},
+                        "dir_thr_neg":  {"base": "0x40004000", "offset": 28, "msb": 15, "lsb": 0, "signed": true,  "log_scale": 15},
+                        "trig_sel":     {"base": "0x40004000", "offset": 32, "msb":  3, "lsb": 0, "signed": false, "log_scale": 0},
+                        "trig_invert":  {"base": "0x40004000", "offset": 32, "msb":  4, "lsb": 4, "signed": false, "log_scale": 0},
+
+                        "status":       {"base": "0x40004000", "offset": 48, "msb": 31, "lsb": 0, "signed": false, "log_scale": 0, "readonly": true},
+                        "ready":        {"base": "0x40004000", "offset": 48, "msb":  0, "lsb": 0, "signed": false, "log_scale": 0, "readonly": true},
+                        "ready_buf":    {"base": "0x40004000", "offset": 48, "msb":  1, "lsb": 1, "signed": false, "log_scale": 0, "readonly": true},
+                        "busy":         {"base": "0x40004000", "offset": 48, "msb":  4, "lsb": 4, "signed": false, "log_scale": 0, "readonly": true},
+                        "avg_ready":    {"base": "0x40004000", "offset": 48, "msb":  5, "lsb": 5, "signed": false, "log_scale": 0, "readonly": true},
+                        "trig_level":   {"base": "0x40004000", "offset": 48, "msb":  6, "lsb": 6, "signed": false, "log_scale": 0, "readonly": true},
+                        "ready_count":  {"base": "0x40004000", "offset": 52, "msb": 12, "lsb": 0, "signed": false, "log_scale": 0, "readonly": true},
+                        "dropped":      {"base": "0x40004000", "offset": 56, "msb": 31, "lsb": 0, "signed": false, "log_scale": 0, "readonly": true},
+                        "ts_snap_lo":   {"base": "0x40004000", "offset": 60, "msb": 31, "lsb": 0, "signed": false, "log_scale": 0, "readonly": true},
+                        "ts_snap_hi":   {"base": "0x40004000", "offset": 64, "msb": 13, "lsb": 0, "signed": false, "log_scale": 0, "readonly": true},
+                        "events_lo":    {"base": "0x40004000", "offset": 68, "msb": 31, "lsb": 0, "signed": false, "log_scale": 0, "readonly": true},
+                        "events_hi":    {"base": "0x40004000", "offset": 72, "msb": 13, "lsb": 0, "signed": false, "log_scale": 0, "readonly": true},
+                        "skipped":      {"base": "0x40004000", "offset": 76, "msb": 31, "lsb": 0, "signed": false, "log_scale": 0, "readonly": true},
+                        "energy_now":   {"base": "0x40004000", "offset": 80, "msb": 15, "lsb":  0, "signed": true,  "log_scale": 15, "readonly": true},
+                        "dir_now":      {"base": "0x40004000", "offset": 80, "msb": 17, "lsb": 16, "signed": false, "log_scale": 0, "readonly": true}
+                        }
+        }
+    }
+}
