@@ -11,8 +11,8 @@ Usage:
     dev.base.load_bitfile()
 
     log = TrigLogger(dev)
-    log.configure(n_avg=256, n_delay_us=5.0, dir_thr=0.1,
-                  trig_sel=0, flush_ms=100)
+    log.configure(n_avg=4, n_delay=16, dir_thr=0.1,
+                  trig_sel=0, flush_ms=100)   # n_delay is CYCLES: 16 = 128 ns
     log.run(duration=60, output_dir="run1")   # None = run until Ctrl+C
 
 Record layout (64-bit little-endian):
@@ -110,23 +110,30 @@ class TrigLogger:
         return np.asarray(cycles, dtype=float) / self.clk_hz
 
     # ------------------------------------------------------------- configure
-    def configure(self, n_avg=256, n_delay_us=5.0, dir_thr=0.1,
+    def configure(self, n_avg=256, n_delay=625, dir_thr=0.1,
                   dir_thr_pos=None, dir_thr_neg=None, trig_sel=0,
-                  trig_invert=0, trig_dead_us=0.0, flush_ms=100,
+                  trig_invert=0, trig_dead=0, flush_ms=100,
                   frame_len=None):
         """Configure the logger. Uses dev.set_register for everything.
 
-        n_avg        boxcar length in samples; must be a power of two, up to
+        n_avg        boxcar length in SAMPLES; must be a power of two, up to
                      2**MAX_LOG_AVG (2048 by default)
-        n_delay_us   microseconds from the trigger to the energy latch
-        dir_thr      symmetric direction threshold in volts: IN2 >= +dir_thr
+        n_delay      CLOCK CYCLES from the trigger edge to the energy latch,
+                     8 ns each at 125 MHz. This is the register's own unit --
+                     there is no prescaler anywhere in this module. Use
+                     log.cycles(seconds) if you would rather think in time:
+                     log.cycles(5e-6) == 625.
+        trig_dead    CLOCK CYCLES of extra holdoff after each record, on top
+                     of n_delay. Total dead time is n_delay + trig_dead.
+        dir_thr      symmetric direction threshold in VOLTS: IN2 >= +dir_thr
                      is +1, <= -dir_thr is -1, in between is 0. Pass
                      dir_thr_pos / dir_thr_neg instead for an asymmetric pair.
         trig_sel     which digital pin, 0-15 = exp_p[0..7] then exp_n[0..7]
         trig_invert  1 = trigger on the falling edge
-        trig_dead_us extra holdoff after each record, on top of n_delay_us
-        flush_ms     publish a partially filled buffer after this long, so a
-                     low trigger rate still produces data (0 = never)
+        flush_ms     MILLISECONDS before a partially filled buffer is
+                     published, so a low trigger rate still produces data
+                     (0 = never). Host-latency housekeeping, not signal
+                     timing, which is why this one stays in human units.
         """
         if frame_len is not None:
             self.frame_len = frame_len
@@ -152,9 +159,14 @@ class TrigLogger:
         if dir_thr_neg is None:
             dir_thr_neg = -abs(dir_thr)
 
-        n_delay = self.cycles(n_delay_us * 1e-6)
-        if n_delay >= (1 << 32):
-            raise ValueError(f"n_delay_us={n_delay_us} overflows 32 bits")
+        # Both are plain cycle counts in 32-bit registers. Check each one:
+        # trig_dead was previously unchecked, and a value that wrapped would
+        # have silently become a short holdoff rather than a long one.
+        for name, val in (("n_delay", n_delay), ("trig_dead", trig_dead)):
+            if int(val) != val or not 0 <= int(val) < (1 << 32):
+                raise ValueError(f"{name} must be a whole number of clock "
+                                 f"cycles in 0..2**32-1, got {val!r}")
+        n_delay, trig_dead = int(n_delay), int(trig_dead)
 
         s = self.dev.set_register
         s('trig_logger', 'arm', 0, raw=True)
@@ -163,14 +175,15 @@ class TrigLogger:
         s('trig_logger', 'flush_ticks', self.cycles(flush_ms * 1e-3), raw=True)
         s('trig_logger', 'log_n_avg',   log_n_avg, raw=True)
         s('trig_logger', 'n_delay',     n_delay, raw=True)
-        s('trig_logger', 'trig_dead',   self.cycles(trig_dead_us * 1e-6), raw=True)
+        s('trig_logger', 'trig_dead',   trig_dead, raw=True)
         s('trig_logger', 'dir_thr_pos', dir_thr_pos)
         s('trig_logger', 'dir_thr_neg', dir_thr_neg)
         s('trig_logger', 'trig_sel',    int(trig_sel), raw=True)
         s('trig_logger', 'trig_invert', int(bool(trig_invert)), raw=True)
 
-        self.n_avg   = n_avg
-        self.n_delay = n_delay
+        self.n_avg     = n_avg
+        self.n_delay   = n_delay
+        self.trig_dead = trig_dead
 
     # ------------------------------------------------------------ run control
     def arm(self, clear=True):
